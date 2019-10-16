@@ -8,3 +8,7 @@ Scripts should be compiled in the following order.
 * create_card_deck.sql
 * shuffle_card_deck.sql
 * play_blackjack.sql
+
+For this project we will be following the prime + modifier + class pattern for naming tables and columns, abbreviating where appropriate.
+
+https://kb.iu.edu/d/bctf
