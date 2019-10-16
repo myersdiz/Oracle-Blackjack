@@ -11,10 +11,9 @@ Scripts should be compiled in the following order.
 
 For this project we will be following the prime + modifier + class pattern for naming tables and columns, abbreviating where appropriate.
 
-https://kb.iu.edu/d/bctf
+* https://kb.iu.edu/d/bctf
 
 Here is additional reference materials for SQL and PL/SQL.
 
-https://www.tutorialspoint.com/sql_certificate/index.htm
-
-https://www.tutorialspoint.com/plsql/index.htm
+* https://www.tutorialspoint.com/sql_certificate/index.htm
+* https://www.tutorialspoint.com/plsql/index.htm
