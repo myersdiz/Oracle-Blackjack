@@ -48,7 +48,8 @@ INSERT INTO classes VALUES (4,'MUS',101,'Intro to Music');
 COMMIT;
 
 SELECT *
-  FROM classes;
+  FROM classes
+ORDER BY 1;
 
 CREATE TABLE student_classes (
     student_id          INTEGER
