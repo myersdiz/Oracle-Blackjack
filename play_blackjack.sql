@@ -43,11 +43,19 @@ AS
       v_dealer_hand                       dealer_hand;
       v_player_hand                       player_hand;
 
+      v_game_num                          INTEGER := 0;
+
       v_dealer_hand_card_cnt              INTEGER := 0;
       v_player_hand_card_cnt              INTEGER := 0;
       v_total_card_cnt                    INTEGER := 0;
 
-      v_game_num                          INTEGER := 0;
+      v_dealer_card_score                 INTEGER := 0;
+      v_player_card_score                 INTEGER := 0;
+
+      v_dealer_ace_cnt                    INTEGER := 0;
+      v_player_ace_cnt                    INTEGER := 0;
+
+      v_game_result_cd                    CHAR(1) := NULL;
    BEGIN
    --   v_dealer_hand.COUNT;
    --   v_dealer_hand.EXISTS(i);
@@ -75,11 +83,24 @@ AS
          v_game_num := v_game_num + 1;
          v_dealer_hand_card_cnt := 0;
          v_player_hand_card_cnt := 0;
+         v_dealer_hand.DELETE;
+         v_player_hand.DELETE;
+         v_game_result_cd := NULL;
 
          << initial_deal >>
          FOR i in 1 .. 4
          LOOP
             IF i IN (1,3) THEN
+               v_player_hand_card_cnt := v_player_hand_card_cnt + 1;
+
+               FETCH c_card_deck INTO
+                  v_player_hand(v_player_hand_card_cnt).deck_num
+                 ,v_player_hand(v_player_hand_card_cnt).card
+                 ,v_player_hand(v_player_hand_card_cnt).suit
+                 ,v_player_hand(v_player_hand_card_cnt).value1
+                 ,v_player_hand(v_player_hand_card_cnt).value2;
+               EXIT WHEN c_card_deck%NOTFOUND;
+            ELSE
                v_dealer_hand_card_cnt := v_dealer_hand_card_cnt + 1;
 
                FETCH c_card_deck INTO
@@ -89,6 +110,25 @@ AS
                  ,v_dealer_hand(v_dealer_hand_card_cnt).value1
                  ,v_dealer_hand(v_dealer_hand_card_cnt).value2;
                EXIT WHEN c_card_deck%NOTFOUND;
+            END IF;
+         END LOOP;
+
+         << player_loop >>
+         LOOP
+            v_player_ace_cnt := 0;
+            v_player_card_score := 0;
+
+            FOR i IN 1 .. v_player_hand.COUNT
+            LOOP
+               IF v_player_hand(i).card = 'Ace' THEN
+                  v_player_ace_cnt := v_player_ace_cnt + 1;
+               END IF;
+
+               v_player_card_score := v_player_hand(i).value1 + v_player_card_score;
+            END LOOP;
+
+            IF v_player_card_score >= 17 THEN
+               EXIT player_loop;
             ELSE
                v_player_hand_card_cnt := v_player_hand_card_cnt + 1;
 
@@ -98,18 +138,66 @@ AS
                  ,v_player_hand(v_player_hand_card_cnt).suit
                  ,v_player_hand(v_player_hand_card_cnt).value1
                  ,v_player_hand(v_player_hand_card_cnt).value2;
-               EXIT WHEN c_card_deck%NOTFOUND;            
+               EXIT WHEN c_card_deck%NOTFOUND;
             END IF;
          END LOOP;
 
-         << player_loop >>
-         LOOP
-            EXIT player_loop;
-         END LOOP;
+         --Player busted
+         IF v_player_card_score > 21 THEN
+            v_game_result_cd := 'L';
+         ELSE
+            << dealer_loop >>
+            LOOP
+               v_dealer_ace_cnt := 0;
+               v_dealer_card_score := 0;
 
-         << dealer_loop >>
+               FOR i IN 1 .. v_dealer_hand.COUNT
+               LOOP
+                  IF v_dealer_hand(i).card = 'Ace' THEN
+                     v_dealer_ace_cnt := v_dealer_ace_cnt + 1;
+                  END IF;
+
+                  v_dealer_card_score := v_dealer_hand(i).value1 + v_dealer_card_score;
+               END LOOP;
+
+               IF v_dealer_card_score >= 17 THEN
+                  EXIT dealer_loop;
+               ELSE
+                  v_dealer_hand_card_cnt := v_dealer_hand_card_cnt + 1;
+
+                  FETCH c_card_deck INTO
+                     v_dealer_hand(v_dealer_hand_card_cnt).deck_num
+                    ,v_dealer_hand(v_dealer_hand_card_cnt).card
+                    ,v_dealer_hand(v_dealer_hand_card_cnt).suit
+                    ,v_dealer_hand(v_dealer_hand_card_cnt).value1
+                    ,v_dealer_hand(v_dealer_hand_card_cnt).value2;
+                  EXIT WHEN c_card_deck%NOTFOUND;
+               END IF;
+            END LOOP;
+
+            --Dealer busts OR player wins
+            IF v_dealer_card_score > 21 OR v_player_card_score > v_dealer_card_score THEN
+               v_game_result_cd := 'W';
+            --Tie score
+            ELSIF v_dealer_card_score = v_player_card_score THEN
+               v_game_result_cd := 'P';
+            --Dealer wins
+            ELSE
+               v_game_result_cd := 'L';
+            END IF;
+         END IF;
+
+         --DBMS_OUTPUT player cards
+         FOR i IN 1 .. v_player_hand.COUNT
          LOOP
-            EXIT dealer_loop;
+            dbms_output.put_line(
+               'Player (' || v_game_num || ') : ' ||
+               v_player_hand(i).deck_num || '|' ||
+               v_player_hand(i).card || '|' ||
+               v_player_hand(i).suit || '|' ||
+               v_player_hand(i).value1 || '|' ||
+               v_player_hand(i).value2
+            );
          END LOOP;
 
          --DBMS_OUTPUT dealer cards
@@ -125,18 +213,7 @@ AS
             );
          END LOOP;
 
-         --DBMS_OUTPUT player cards
-         FOR i IN 1 .. v_player_hand.COUNT
-         LOOP
-            dbms_output.put_line(
-               'Player (' || v_game_num || ') : ' ||
-               v_player_hand(i).deck_num || '|' ||
-               v_player_hand(i).card || '|' ||
-               v_player_hand(i).suit || '|' ||
-               v_player_hand(i).value1 || '|' ||
-               v_player_hand(i).value2
-            );
-         END LOOP;
+         dbms_output.put_line('Result: ' || v_game_result_cd);
       END LOOP;
 
       CLOSE c_card_deck;
