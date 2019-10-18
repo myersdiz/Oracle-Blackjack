@@ -17,3 +17,7 @@ Here is additional reference materials for SQL and PL/SQL.
 
 * https://www.tutorialspoint.com/sql_certificate/index.htm
 * https://www.tutorialspoint.com/plsql/index.htm
+
+Here's an interesting article on blackjack simulations.
+
+* https://digitalcommons.usu.edu/cgi/viewcontent.cgi?article=1528&context=gradreports
