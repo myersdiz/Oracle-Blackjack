@@ -190,7 +190,7 @@ AS
          --DBMS_OUTPUT player cards
          FOR i IN 1 .. v_player_hand.COUNT
          LOOP
-            dbms_output.put_line(
+            dbms_output.put_line (
                'Player (' || v_game_num || ') : ' ||
                v_player_hand(i).deck_num || '|' ||
                v_player_hand(i).card || '|' ||
@@ -203,7 +203,7 @@ AS
          --DBMS_OUTPUT dealer cards
          FOR i IN 1 .. v_dealer_hand.COUNT
          LOOP
-            dbms_output.put_line(
+            dbms_output.put_line (
                'Dealer (' || v_game_num || ') : ' ||
                v_dealer_hand(i).deck_num || '|' ||
                v_dealer_hand(i).card || '|' ||
@@ -213,7 +213,7 @@ AS
             );
          END LOOP;
 
-         dbms_output.put_line('Result: ' || v_game_result_cd);
+         dbms_output.put_line ('Result: ' || v_game_result_cd);
       END LOOP;
 
       CLOSE c_card_deck;
