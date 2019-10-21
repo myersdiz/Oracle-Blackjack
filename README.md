@@ -21,3 +21,24 @@ Here is additional reference materials for SQL and PL/SQL.
 Here's an interesting article on blackjack simulations.
 
 * https://digitalcommons.usu.edu/cgi/viewcontent.cgi?article=1528&context=gradreports
+
+Sample output:
+
+Player (438) : 72|2|Clubs|2|0
+Player (438) : 46|Queen|Spades|10|0
+Player (438) : 35|2|Hearts|2|0
+Player (438) : 94|3|Spades|3|0
+Dealer (438) : 88|3|Clubs|3|0
+Dealer (438) : 92|9|Diamonds|9|0
+Dealer (438) : 70|6|Spades|6|0
+Player card score: 17/17/17 (17)
+Dealer card score: 18
+           Result: L
+ 
+Player (439) : 54|Ace|Hearts|11|1
+Player (439) : 93|10|Diamonds|10|0
+Dealer (439) : 60|4|Clubs|4|0
+Dealer (439) : 26|Queen|Hearts|10|0
+Dealer (439) : 73|Queen|Spades|10|0
+ 
+    !!! BLACKJACK !!! 
