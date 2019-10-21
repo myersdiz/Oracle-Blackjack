@@ -50,10 +50,13 @@ AS
       v_total_card_cnt                    INTEGER := 0;
 
       v_dealer_card_score                 INTEGER := 0;
-      v_player_card_score                 INTEGER := 0;
+      v_player_low_card_score             INTEGER := 0;
+      v_player_mid_card_score             INTEGER := 0;
+      v_player_high_card_score            INTEGER := 0;
+      v_player_final_card_score           INTEGER := 0;
 
-      v_dealer_ace_cnt                    INTEGER := 0;
       v_player_ace_cnt                    INTEGER := 0;
+      v_dealer_ace_cnt                    INTEGER := 0;
 
       v_game_result_cd                    CHAR(1) := NULL;
    BEGIN
@@ -116,7 +119,9 @@ AS
          << player_loop >>
          LOOP
             v_player_ace_cnt := 0;
-            v_player_card_score := 0;
+            v_player_low_card_score := 0;
+            v_player_mid_card_score := 0;
+            v_player_high_card_score := 0;
 
             FOR i IN 1 .. v_player_hand.COUNT
             LOOP
@@ -124,10 +129,30 @@ AS
                   v_player_ace_cnt := v_player_ace_cnt + 1;
                END IF;
 
-               v_player_card_score := v_player_hand(i).value1 + v_player_card_score;
+               IF v_player_ace_cnt = 1 AND v_player_hand(i).card = 'Ace' THEN
+                  v_player_low_card_score := v_player_hand(i).value2 + v_player_low_card_score;
+                  v_player_mid_card_score := v_player_hand(i).value2 + v_player_mid_card_score;
+                  v_player_high_card_score := v_player_hand(i).value1 + v_player_high_card_score;
+               ELSIF v_player_ace_cnt > 1 AND v_player_hand(i).card = 'Ace' THEN
+                  v_player_low_card_score := v_player_hand(i).value2 + v_player_low_card_score;
+                  v_player_mid_card_score := v_player_hand(i).value1 + v_player_mid_card_score;
+                  v_player_high_card_score := v_player_hand(i).value1 + v_player_high_card_score;
+               ELSE
+                  v_player_low_card_score := v_player_hand(i).value1 + v_player_low_card_score;
+                  v_player_mid_card_score := v_player_hand(i).value1 + v_player_mid_card_score;
+                  v_player_high_card_score := v_player_hand(i).value1 + v_player_high_card_score;
+               END IF;
             END LOOP;
 
-            IF v_player_card_score >= 17 THEN
+            IF v_player_high_card_score <= 21 THEN
+               v_player_final_card_score := v_player_high_card_score;
+            ELSIF v_player_mid_card_score <= 21 THEN
+               v_player_final_card_score := v_player_mid_card_score;
+            ELSE
+               v_player_final_card_score := v_player_low_card_score;
+            END IF;
+
+            IF v_player_final_card_score >= 17 THEN
                EXIT player_loop;
             ELSE
                v_player_hand_card_cnt := v_player_hand_card_cnt + 1;
@@ -143,7 +168,7 @@ AS
          END LOOP;
 
          --Player busted
-         IF v_player_card_score > 21 THEN
+         IF v_player_final_card_score > 21 THEN
             v_game_result_cd := 'L';
          ELSE
             << dealer_loop >>
@@ -176,10 +201,10 @@ AS
             END LOOP;
 
             --Dealer busts OR player wins
-            IF v_dealer_card_score > 21 OR v_player_card_score > v_dealer_card_score THEN
+            IF v_dealer_card_score > 21 OR v_player_final_card_score > v_dealer_card_score THEN
                v_game_result_cd := 'W';
             --Tie score
-            ELSIF v_dealer_card_score = v_player_card_score THEN
+            ELSIF v_dealer_card_score = v_player_final_card_score THEN
                v_game_result_cd := 'P';
             --Dealer wins
             ELSE
@@ -213,7 +238,16 @@ AS
             );
          END LOOP;
 
-         dbms_output.put_line ('Result: ' || v_game_result_cd);
+         IF v_player_hand_card_cnt = 2 AND v_player_high_card_score = 21 AND v_game_result_cd = 'W' THEN
+            dbms_output.put_line (' ');
+            dbms_output.put_line ('    !!! BLACKJACK !!!    ');
+            dbms_output.put_line (' ');
+         END IF;
+
+         dbms_output.put_line ('Player card score: ' || v_player_low_card_score || '/' || v_player_mid_card_score || '/' || v_player_high_card_score || ' (' || v_player_final_card_score || ')');
+         dbms_output.put_line ('Dealer card score: ' || v_dealer_card_score);
+         dbms_output.put_line ('           Result: ' || v_game_result_cd);
+         dbms_output.put_line (' ');
       END LOOP;
 
       CLOSE c_card_deck;
@@ -222,6 +256,6 @@ END;
 /
 
 BEGIN
-   blackjack_pkg.play_blackjack (8, 1);
+   blackjack_pkg.play_blackjack (100, 1);
 END;
 /
