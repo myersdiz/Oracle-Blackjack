@@ -24,22 +24,26 @@ Here's an interesting article on blackjack simulations.
 
 Sample output:
 
-```Player (438) : 72|2|Clubs|2|0
-Player (438) : 46|Queen|Spades|10|0
-Player (438) : 35|2|Hearts|2|0
-Player (438) : 94|3|Spades|3|0
-Dealer (438) : 88|3|Clubs|3|0
-Dealer (438) : 92|9|Diamonds|9|0
-Dealer (438) : 70|6|Spades|6|0
-Player card score: 17/17/17 (17)
-Dealer card score: 18
-           Result: L
+```Player (43) : 9|4|Clubs|4|0
+Player (43) : 8|7|Hearts|7|0
+Player (43) : 4|3|Clubs|3|0
+Player (43) : 10|6|Diamonds|6|0
+Dealer (43) : 5|3|Spades|3|0
+Dealer (43) : 4|7|Hearts|7|0
+Dealer (43) : 4|6|Clubs|6|0
+Dealer (43) : 5|7|Spades|7|0
+Player card score: 20/20/20 (20)
+Dealer card score: 23/23/23 (23)
+           Result: Win
  
-Player (439) : 54|Ace|Hearts|11|1
-Player (439) : 93|10|Diamonds|10|0
-Dealer (439) : 60|4|Clubs|4|0
-Dealer (439) : 26|Queen|Hearts|10|0
-Dealer (439) : 73|Queen|Spades|10|0
+Player (44) : 7|Jack|Spades|10|0
+Player (44) : 10|Ace|Hearts|11|1
+Dealer (44) : 4|7|Clubs|7|0
+Dealer (44) : 7|King|Diamonds|10|0
  
-    !!! BLACKJACK !!!
+    !!! BLACKJACK !!!    
+ 
+Player card score: 11/11/21 (21)
+Dealer card score: 17/17/17 (17)
+           Result: Win
 ```
