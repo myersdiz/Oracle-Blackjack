@@ -12,7 +12,7 @@ CREATE TABLE card_deck (
   ,CONSTRAINT card_deck_pk PRIMARY KEY (deck_num, card, suit)
 );
 
-CREATE OR REPLACE PROCEDURE create_card_deck (p_deck_num INTEGER)
+CREATE OR REPLACE PROCEDURE create_card_deck (p_deck_num INTEGER DEFAULT 1)
 AS
    --Types are similar to arrays in other languages
    TYPE card_type IS TABLE OF VARCHAR2(5) INDEX BY PLS_INTEGER;
@@ -104,11 +104,16 @@ BEGIN
    END LOOP;
 
    COMMIT;
+
+EXCEPTION
+    WHEN OTHERS THEN
+        ROLLBACK;
+        RAISE;
 END;
 /
 
 BEGIN
-   create_card_deck(4);
+   create_card_deck (2);
 END;
 /
 
