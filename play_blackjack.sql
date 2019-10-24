@@ -1,5 +1,4 @@
-SET SERVEROUTPUT ON;
-
+--Package Specification
 CREATE OR REPLACE PACKAGE blackjack_pkg
 AS
    --Types
@@ -21,6 +20,7 @@ AS
 END;
 /
 
+--Package Body
 CREATE OR REPLACE PACKAGE BODY blackjack_pkg
 AS
    PROCEDURE play_blackjack (
@@ -77,26 +77,41 @@ AS
       --Shuffle the card desk
       shuffle_card_deck;
 
+      --Opening the card_deck cursor so I can FETCH a card for the player and dealer.
       OPEN c_card_deck;
 
+      --This is the main game loop; every loop is one hand of blackjack
       << game_loop >>
       LOOP
+         --This statement keeps track of the number of cards used by the dealer and player for the previous game.
          v_total_card_cnt := v_total_card_cnt + v_dealer_hand_card_cnt + v_player_hand_card_cnt;
 
+         --If 50% or more of the cards have been FETCHED from the v_card_desk CURSOR then quit the game.
          IF v_total_card_cnt / (p_num_card_decks * 52) >= 0.50 THEN
             EXIT game_loop;
          END IF;
 
+         --Reset some loop variables
          v_game_num := v_game_num + 1;
          v_dealer_hand_card_cnt := 0;
          v_player_hand_card_cnt := 0;
          v_dealer_hand.DELETE;
          v_player_hand.DELETE;
          v_game_result_cd := NULL;
+         v_player_low_card_score := 0;
+         v_player_mid_card_score := 0;
+         v_player_high_card_score := 0;
+         v_player_final_card_score := 0;
+         v_dealer_low_card_score := 0;
+         v_dealer_mid_card_score := 0;
+         v_dealer_high_card_score := 0;
+         v_dealer_final_card_score := 0;
 
+         --Deal 2 cards to the player, and deal 2 cards to the dealer
          << initial_deal >>
          FOR i in 1 .. 4
          LOOP
+            --Player gets the 1st and 3rd card from c_card_deck  (IN (1,3) is the same as saying (i = 1 OR i = 3)
             IF i IN (1,3) THEN
                v_player_hand_card_cnt := v_player_hand_card_cnt + 1;
 
@@ -107,6 +122,7 @@ AS
                  ,v_player_hand(v_player_hand_card_cnt).value1
                  ,v_player_hand(v_player_hand_card_cnt).value2;
                EXIT WHEN c_card_deck%NOTFOUND;
+            --Dealer gets the 2nd and 4th card from c_card_desk
             ELSE
                v_dealer_hand_card_cnt := v_dealer_hand_card_cnt + 1;
 
@@ -120,13 +136,17 @@ AS
             END IF;
          END LOOP;
 
+         --Player decides to keep hitting or stay based on if their score is less than 17
          << player_loop >>
          LOOP
+            --Reset player score
             v_player_ace_cnt := 0;
             v_player_low_card_score := 0;
             v_player_mid_card_score := 0;
             v_player_high_card_score := 0;
 
+            --Calculates the best and worst case score for the players hand at this point
+            << calc_player_hand_score >>
             FOR i IN 1 .. v_player_hand.COUNT
             LOOP
                IF v_player_hand(i).card = 'Ace' THEN
@@ -156,6 +176,7 @@ AS
                v_player_final_card_score := v_player_low_card_score;
             END IF;
 
+            --If the players final score is greater than or equal to 17 the exit the player loop so the dealer can play.
             IF v_player_final_card_score >= 17 THEN
                EXIT player_loop;
             ELSE
@@ -169,12 +190,13 @@ AS
                  ,v_player_hand(v_player_hand_card_cnt).value2;
                EXIT WHEN c_card_deck%NOTFOUND;
             END IF;
-         END LOOP;
+         END LOOP;  --player_loop
 
-         --Player busted
+         --Player busted so player looser
          IF v_player_final_card_score > 21 THEN
             v_game_result_cd := 'Lose';
          ELSE
+             --Dealer decides to keep hitting or stay based on if their score is less than 17
             << dealer_loop >>
             LOOP
                v_dealer_ace_cnt := 0;
@@ -224,7 +246,7 @@ AS
                     ,v_dealer_hand(v_dealer_hand_card_cnt).value2;
                   EXIT WHEN c_card_deck%NOTFOUND;
                END IF;
-            END LOOP;
+            END LOOP;  --dealer_loop
 
             --Dealer busts OR player wins
             IF v_dealer_final_card_score > 21 OR v_player_final_card_score > v_dealer_final_card_score THEN
@@ -274,12 +296,15 @@ AS
          dbms_output.put_line ('Dealer card score: ' || v_dealer_low_card_score || '/' || v_dealer_mid_card_score || '/' || v_dealer_high_card_score || ' (' || v_dealer_final_card_score || ')');
          dbms_output.put_line ('           Result: ' || v_game_result_cd);
          dbms_output.put_line (' ');
-      END LOOP;
+
+      END LOOP;  --game_loop
 
       CLOSE c_card_deck;
    END;
 END;
 /
+
+SET SERVEROUTPUT ON;
 
 BEGIN
    blackjack_pkg.play_blackjack (100, 1);
