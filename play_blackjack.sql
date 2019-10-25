@@ -23,6 +23,117 @@ END;
 --Package Body
 CREATE OR REPLACE PACKAGE BODY blackjack_pkg
 AS
+   PROCEDURE create_card_deck (p_deck_num INTEGER DEFAULT 1)
+   AS
+      --Types are similar to arrays in other languages
+      TYPE card_type IS TABLE OF VARCHAR2(5) INDEX BY PLS_INTEGER;
+      TYPE suit_type IS TABLE OF VARCHAR2(8) INDEX BY PLS_INTEGER;
+      TYPE value_type IS TABLE OF INTEGER INDEX BY PLS_INTEGER;
+
+      card        card_type;
+      suit        suit_type;
+      value1      value_type;
+      value2      value_type;
+   BEGIN
+      --Initialize card collection
+      card(1) := '2';
+      card(2) := '3';
+      card(3) := '4';
+      card(4) := '5';
+      card(5) := '6';
+      card(6) := '7';
+      card(7) := '8';
+      card(8) := '9';
+      card(9) := '10';
+      card(10) := 'Jack';
+      card(11) := 'Queen';
+      card(12) := 'King';
+      card(13) := 'Ace';
+
+      --Initialize suit collection
+      suit(1) := 'Hearts';
+      suit(2) := 'Diamonds';
+      suit(3) := 'Spades';
+      suit(4) := 'Clubs';
+
+      --Initialize value collection
+      value1(1) := 2;
+      value1(2) := 3;
+      value1(3) := 4;
+      value1(4) := 5;
+      value1(5) := 6;
+      value1(6) := 7;
+      value1(7) := 8;
+      value1(8) := 9;
+      value1(9) := 10;
+      value1(10) := 10;
+      value1(11) := 10;
+      value1(12) := 10;
+      value1(13) := 11;
+
+      value2(1) := 0;
+      value2(2) := 0;
+      value2(3) := 0;
+      value2(4) := 0;
+      value2(5) := 0;
+      value2(6) := 0;
+      value2(7) := 0;
+      value2(8) := 0;
+      value2(9) := 0;
+      value2(10) := 0;
+      value2(11) := 0;
+      value2(12) := 0;
+      value2(13) := 1;
+
+      EXECUTE IMMEDIATE 'TRUNCATE TABLE card_deck';
+
+      --Loop through number of decks
+      FOR v_deck_num IN 1 .. p_deck_num
+      LOOP
+
+         --Loop through number of cards
+         FOR v_card_num IN 1 .. 13
+         LOOP
+
+            --Loop through number of suits
+            FOR v_suit_num IN 1 .. 4
+            LOOP
+               INSERT INTO card_deck (
+                  deck_num
+                 ,card
+                 ,suit
+                 ,value1
+                 ,value2
+                 ,random_num
+               ) VALUES (
+                  v_deck_num
+                 ,card(v_card_num)
+                 ,suit(v_suit_num)
+                 ,value1(v_card_num)
+                 ,value2(v_card_num)
+                 ,dbms_random.random()
+               );
+            END LOOP;
+         END LOOP;
+      END LOOP;
+
+      COMMIT;
+
+   EXCEPTION
+      WHEN OTHERS THEN
+        ROLLBACK;
+        RAISE;
+   END;
+
+   PROCEDURE shuffle_card_deck
+   AS
+   BEGIN
+      UPDATE card_deck
+         SET random_num = dbms_random.random();
+
+      COMMIT;
+   END;
+
    PROCEDURE play_blackjack (
       p_num_card_decks                    INTEGER DEFAULT 8
      ,p_num_of_players                    INTEGER DEFAULT 1
@@ -72,10 +183,10 @@ AS
    --   v_dealer_hand(i).card;
 
       --Create a card desk
-      create_card_deck(p_num_card_decks);
+      blackjack_pkg.create_card_deck (p_num_card_decks);
 
       --Shuffle the card desk
-      shuffle_card_deck;
+      blackjack_pkg.shuffle_card_deck;
 
       --Opening the card_deck cursor so I can FETCH a card for the player and dealer.
       OPEN c_card_deck;
