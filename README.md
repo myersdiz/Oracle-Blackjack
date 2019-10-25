@@ -23,7 +23,8 @@ Here's an interesting article on blackjack simulations.
 
 Sample output:
 
-```Player (278) : 6|4|Clubs|4|0
+```
+Player (278) : 6|4|Clubs|4|0
 Player (278) : 69|10|Hearts|10|0
 Player (278) : 36|7|Clubs|7|0
 Dealer (278) : 58|Jack|Diamonds|10|0
