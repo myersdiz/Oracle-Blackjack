@@ -40,5 +40,9 @@ Dealer (279) : 81|7|Hearts|7|0
 Dealer (279) : 5|3|Spades|3|0
 Dealer (279) : 89|Queen|Hearts|10|0
  
-    !!! BLACKJACK !!!
+    !!! BLACKJACK !!!    
+ 
+Player card score: 11/11/21 (21)
+Dealer card score: 20/20/20 (20)
+           Result: Win
 ```
