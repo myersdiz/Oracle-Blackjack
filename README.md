@@ -5,6 +5,7 @@ Dealer and player rules will be sourced from Wikipedia.
 https://en.wikipedia.org/wiki/Blackjack
 
 Scripts should be compiled in the following order.
+* blackjack DDL.sql
 * play_blackjack.sql
 
 For this project we will be following the prime + modifier + class pattern for naming tables and columns, abbreviating where appropriate.
