@@ -1,5 +1,4 @@
-# Oracle-Blackjack
-
+# oracle_blackjack
 Dealer and player rules will be sourced from Wikipedia.
 
 https://en.wikipedia.org/wiki/Blackjack
